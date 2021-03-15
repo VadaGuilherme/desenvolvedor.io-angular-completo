@@ -6,8 +6,7 @@ import { FornecedorService } from '../services/fornecedor.service';
 
 @Component({
   selector: 'app-excluir',
-  templateUrl: './excluir.component.html',
-  styleUrls: ['./excluir.component.css']
+  templateUrl: './excluir.component.html'
 })
 export class ExcluirComponent {
 

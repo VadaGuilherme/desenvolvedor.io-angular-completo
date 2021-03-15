@@ -10,8 +10,7 @@ import { FornecedorService } from '../services/fornecedor.service';
 
 @Component({
   selector: 'app-editar',
-  templateUrl: './editar.component.html',
-  styleUrls: ['./editar.component.css']
+  templateUrl: './editar.component.html'
 })
 export class EditarComponent implements OnInit {
 

@@ -10,6 +10,8 @@ import { FornecedorRoutingModule } from "./fornecedor.route";
 import { CommonModule } from "@angular/common";
 import { FornecedorService } from "./services/fornecedor.service";
 import { FornecedorAppComponent } from "./fornecedor.app.component";
+import { NgBrazil } from "ng-brazil";
+import { TextMaskModule } from "angular2-text-mask";
 
 @NgModule({
     declarations: [
@@ -26,6 +28,8 @@ import { FornecedorAppComponent } from "./fornecedor.app.component";
         FormsModule,
         ReactiveFormsModule,
         HttpClientModule,
+        NgBrazil,
+        TextMaskModule
     ],
     providers: [
         FornecedorService

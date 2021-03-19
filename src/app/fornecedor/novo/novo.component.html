@@ -29,7 +29,8 @@
                     <label class="control-label">Documento</label>
                     <div>
                         <input class="form-control" id="documento" type="text" placeholder="(requerido)"
-                            formControlName="documento" [ngClass]="{'is-invalid': displayMessage.documento }" />
+                            formControlName="documento" cpf [textMask]="{ mask: MASKS.cpf.textMask }"
+                            [ngClass]="{'is-invalid': displayMessage.documento }" />
 
                         <span class="text-danger" *ngIf="displayMessage.documento">
                             <p [innerHTML]="displayMessage.documento"></p>
@@ -54,7 +55,7 @@
 
                 <h4>Endereço</h4>
                 <hr>
-                <div>
+                <div formGroupName="endereco">
                     <div class="form-group">
                         <label class="control-label">CEP</label>
                         <div>

@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChildren } from '@angular/core';
-import { FormBuilder, FormControlName, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControlName, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgBrazilValidators } from 'ng-brazil';
 import { ToastrService } from 'ngx-toastr';
@@ -25,6 +25,7 @@ export class NovoComponent implements OnInit {
   validationMessages: ValidationMessages;
   genericValidator: GenericValidator;
   displayMessage: DisplayMessage = {};
+  textoDocumento: string = 'CPF (requerido)';
 
   MASKS = utilsBr.MASKS;
   formResult: string = '';
@@ -42,7 +43,8 @@ export class NovoComponent implements OnInit {
       },
       documento: {
         required: 'Informe o Documento',
-        cpf: 'CPF em formato inválido'
+        cpf: 'CPF em formato inválido',
+        cnpj: 'CNPJ em formato inválido'
       },
       logradouro: {
         required: 'Informe o Logradouro',
@@ -54,7 +56,8 @@ export class NovoComponent implements OnInit {
         required: 'Informe o Bairro',
       },
       cep: {
-        required: 'Informe o CEP'
+        required: 'Informe o CEP',
+        cep: 'CEP em formato inválido'
       },
       cidade: {
         required: 'Informe a Cidade',
@@ -78,7 +81,7 @@ export class NovoComponent implements OnInit {
         numero: ['', [Validators.required]],
         complemento: ['', [Validators.required]],
         bairro: ['', [Validators.required]],
-        cep: ['', [Validators.required]],
+        cep: ['', [Validators.required, NgBrazilValidators.cep]],
         cidade: ['', [Validators.required]],
         estado: ['', [Validators.required]]
       })
@@ -91,13 +94,48 @@ export class NovoComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
+    this.tipoFornecedorForm().valueChanges.subscribe(() => {
+      this.trocarValidacaoDocumento();
+      this.configurarElementosValidacao();
+      this.validarFormulario();
+    });
+
+    this.configurarElementosValidacao();
+  }
+
+  configurarElementosValidacao() {
     let controlBlurs: Observable<any>[] = this.formInputElements
       .map((formControl: ElementRef) => fromEvent(formControl.nativeElement, 'blur'));
 
     merge(...controlBlurs).subscribe(() => {
-      this.displayMessage = this.genericValidator.processarMensagens(this.fornecedorForm);
-      this.mudancasNaoSalvas = true;
+      this.validarFormulario();
     });
+  }
+
+  validarFormulario() {
+    this.displayMessage = this.genericValidator.processarMensagens(this.fornecedorForm);
+    this.mudancasNaoSalvas = true;
+  }
+
+  trocarValidacaoDocumento() {
+    if (this.tipoFornecedorForm().value === "1") {
+      this.documento().clearValidators();
+      this.documento().setValidators([Validators.required, NgBrazilValidators.cpf]);
+      this.textoDocumento = "CPF (requerido)";
+    }
+    else {
+      this.documento().clearValidators();
+      this.documento().setValidators([Validators.required, NgBrazilValidators.cnpj]);
+      this.textoDocumento = "CNPJ (requerido)";
+    }
+  }
+
+  tipoFornecedorForm(): AbstractControl {
+    return this.fornecedorForm.get('tipoFornecedor');
+  }
+
+  documento(): AbstractControl {
+    return this.fornecedorForm.get('documento');
   }
 
   adicionarFornecedor() {

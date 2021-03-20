@@ -1,20 +1,24 @@
-import { Component, ElementRef, OnInit, ViewChildren } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControlName, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit, ViewChildren, ElementRef } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormControlName, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgBrazilValidators } from 'ng-brazil';
+
+import { Observable, fromEvent, merge } from 'rxjs';
+
 import { ToastrService } from 'ngx-toastr';
-import { fromEvent, merge, Observable } from 'rxjs';
-import { DisplayMessage, GenericValidator, ValidationMessages } from 'src/app/utils/generic-form-validator';
+import { NgBrazilValidators } from 'ng-brazil';
+import { utilsBr } from 'js-brasil';
+
+import { ValidationMessages, GenericValidator, DisplayMessage } from 'src/app/utils/generic-form-validator';
 import { Fornecedor } from '../models/fornecedor';
 import { FornecedorService } from '../services/fornecedor.service';
-import { utilsBr } from 'js-brasil';
+import { CepConsulta } from '../models/endereco';
+import { StringUtils } from 'src/app/utils/string-utils';
 
 @Component({
   selector: 'app-novo',
   templateUrl: './novo.component.html'
 })
 export class NovoComponent implements OnInit {
-
 
   @ViewChildren(FormControlName, { read: ElementRef }) formInputElements: ElementRef[];
 
@@ -71,15 +75,17 @@ export class NovoComponent implements OnInit {
   }
 
   ngOnInit() {
+
     this.fornecedorForm = this.fb.group({
       nome: ['', [Validators.required]],
       documento: ['', [Validators.required, NgBrazilValidators.cpf]],
       ativo: ['', [Validators.required]],
       tipoFornecedor: ['', [Validators.required]],
+
       endereco: this.fb.group({
         logradouro: ['', [Validators.required]],
         numero: ['', [Validators.required]],
-        complemento: ['', [Validators.required]],
+        complemento: [''],
         bairro: ['', [Validators.required]],
         cep: ['', [Validators.required, NgBrazilValidators.cep]],
         cidade: ['', [Validators.required]],
@@ -87,18 +93,17 @@ export class NovoComponent implements OnInit {
       })
     });
 
-    this.fornecedorForm.patchValue({
-      tipoFornecedor: '1',
-      ativo: true
-    });
+    this.fornecedorForm.patchValue({ tipoFornecedor: '1', ativo: true });
   }
 
   ngAfterViewInit(): void {
-    this.tipoFornecedorForm().valueChanges.subscribe(() => {
-      this.trocarValidacaoDocumento();
-      this.configurarElementosValidacao();
-      this.validarFormulario();
-    });
+
+    this.tipoFornecedorForm().valueChanges
+      .subscribe(() => {
+        this.trocarValidacaoDocumento();
+        this.configurarElementosValidacao();
+        this.validarFormulario();
+      });
 
     this.configurarElementosValidacao();
   }
@@ -138,24 +143,52 @@ export class NovoComponent implements OnInit {
     return this.fornecedorForm.get('documento');
   }
 
+  buscarCep(cep: string) {
+
+    cep = StringUtils.somenteNumeros(cep);
+    if (cep.length < 8) return;
+
+    this.fornecedorService.consultarCep(cep)
+      .subscribe(
+        cepRetorno => this.preencherEnderecoConsulta(cepRetorno),
+        erro => this.errors.push(erro));
+  }
+
+  preencherEnderecoConsulta(cepConsulta: CepConsulta) {
+
+    this.fornecedorForm.patchValue({
+      endereco: {
+        logradouro: cepConsulta.logradouro,
+        bairro: cepConsulta.bairro,
+        cep: cepConsulta.cep,
+        cidade: cepConsulta.localidade,
+        estado: cepConsulta.uf
+      }
+    });
+  }
+
   adicionarFornecedor() {
     if (this.fornecedorForm.dirty && this.fornecedorForm.valid) {
+
       this.fornecedor = Object.assign({}, this.fornecedor, this.fornecedorForm.value);
       this.formResult = JSON.stringify(this.fornecedor);
+
+      this.fornecedor.endereco.cep = StringUtils.somenteNumeros(this.fornecedor.endereco.cep);
+      this.fornecedor.documento = StringUtils.somenteNumeros(this.fornecedor.documento);
 
       this.fornecedorService.novoFornecedor(this.fornecedor)
         .subscribe(
           sucesso => { this.processarSucesso(sucesso) },
           falha => { this.processarFalha(falha) }
         );
-
-      this.mudancasNaoSalvas = false;
     }
   }
 
   processarSucesso(response: any) {
     this.fornecedorForm.reset();
     this.errors = [];
+
+    this.mudancasNaoSalvas = false;
 
     let toast = this.toastr.success('Fornecedor cadastrado com sucesso!', 'Sucesso!');
     if (toast) {
@@ -169,5 +202,4 @@ export class NovoComponent implements OnInit {
     this.errors = fail.error.errors;
     this.toastr.error('Ocorreu um erro!', 'Opa :(');
   }
-
 }

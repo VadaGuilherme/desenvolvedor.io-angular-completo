@@ -1,4 +1,4 @@
-import { Endereco } from "./endereco";
+import { Endereco } from './endereco';
 
 export class Fornecedor {
     id: string;
@@ -8,3 +8,4 @@ export class Fornecedor {
     tipoFornecedor: number;
     endereco: Endereco;
 }
+

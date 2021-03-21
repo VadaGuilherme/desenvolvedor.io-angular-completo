@@ -201,7 +201,6 @@ export class EditarComponent implements OnInit {
 
   editarFornecedor() {
     if (this.fornecedorForm.dirty && this.fornecedorForm.valid) {
-
       this.fornecedor = Object.assign({}, this.fornecedor, this.fornecedorForm.value);
 
       this.fornecedorService.atualizarFornecedor(this.fornecedor)
@@ -230,7 +229,6 @@ export class EditarComponent implements OnInit {
 
   editarEndereco() {
     if (this.enderecoForm.dirty && this.enderecoForm.valid) {
-
       this.endereco = Object.assign({}, this.endereco, this.enderecoForm.value);
 
       this.endereco.cep = StringUtils.somenteNumeros(this.endereco.cep);
@@ -248,7 +246,7 @@ export class EditarComponent implements OnInit {
     this.errors = [];
 
     this.toastr.success('Endereço atualizado com sucesso!', 'Sucesso!');
-    this.fornecedor.endereco = endereco
+    this.fornecedor.endereco = endereco;
     this.modalService.dismissAll();
   }
 

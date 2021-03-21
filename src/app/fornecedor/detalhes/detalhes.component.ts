@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Fornecedor } from '../models/fornecedor';
-import { FornecedorService } from '../services/fornecedor.service';
 
 @Component({
   selector: 'app-detalhes',

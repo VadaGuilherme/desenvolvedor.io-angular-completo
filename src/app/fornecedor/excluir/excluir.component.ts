@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { collapseTextChangeRangesAcrossMultipleVersions } from 'typescript';
 import { Fornecedor } from '../models/fornecedor';
 import { FornecedorService } from '../services/fornecedor.service';
 
@@ -11,6 +12,7 @@ import { FornecedorService } from '../services/fornecedor.service';
 export class ExcluirComponent {
 
   fornecedor: Fornecedor = new Fornecedor();
+  erros: any[] = [];
 
   constructor(
     private fornecedorService: FornecedorService,
@@ -24,13 +26,12 @@ export class ExcluirComponent {
   excluirEvento() {
     this.fornecedorService.excluirFornecedor(this.fornecedor.id)
       .subscribe(
-        evento => { this.sucessoExclusao(evento) },
-        error => { this.falha() }
+        fornecedor => { this.sucessoExclusao(fornecedor) },
+        error => { this.falha(error) }
       );
   }
 
   sucessoExclusao(evento: any) {
-
     const toast = this.toastr.success('Fornecedor excluido com Sucesso!', 'Good bye :D');
     if (toast) {
       toast.onHidden.subscribe(() => {
@@ -39,8 +40,7 @@ export class ExcluirComponent {
     }
   }
 
-  falha() {
-    this.toastr.error('Houve um erro no processamento!', 'Ops! :(');
+  falha(fail: any) {
+    this.toastr.error(fail.error.errors, 'Ops! :(');
   }
-
 }

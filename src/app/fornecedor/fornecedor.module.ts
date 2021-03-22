@@ -4,7 +4,6 @@ import { EditarComponent } from './editar/editar.component';
 import { ExcluirComponent } from './excluir/excluir.component';
 import { NovoComponent } from './novo/novo.component';
 import { ListaComponent } from './lista/lista.component';
-import { HttpClientModule } from "@angular/common/http";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { FornecedorRoutingModule } from "./fornecedor.route";
 import { CommonModule } from "@angular/common";
@@ -14,6 +13,7 @@ import { NgBrazil } from "ng-brazil";
 import { TextMaskModule } from "angular2-text-mask";
 import { FornecedorResolve } from "./services/fornecedor.resolve";
 import { NgxSpinnerModule } from "ngx-spinner";
+import { FornecedorGuard } from "./services/fornecedor.guard";
 
 @NgModule({
     declarations: [
@@ -29,14 +29,14 @@ import { NgxSpinnerModule } from "ngx-spinner";
         FornecedorRoutingModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         NgBrazil,
         TextMaskModule,
         NgxSpinnerModule
     ],
     providers: [
         FornecedorService,
-        FornecedorResolve
+        FornecedorResolve,
+        FornecedorGuard
     ]
 })
 

@@ -7,12 +7,15 @@ import { Fornecedor, Produto } from '../models/produto';
 import { ProdutoService } from '../services/produto.service';
 import { utilsBr } from 'js-brasil';
 import { fromEvent, merge, Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-editar',
   templateUrl: './editar.component.html'
 })
 export class EditarComponent implements OnInit {
+
+  imagens: string = environment.imagensUrl;
 
   @ViewChildren(FormControlName, { read: ElementRef }) formInputElements: ElementRef[];
 

@@ -7,6 +7,8 @@ import { DisplayMessage, GenericValidator, ValidationMessages } from 'src/app/ut
 import { Fornecedor, Produto } from '../models/produto';
 import { ProdutoService } from '../services/produto.service';
 import { utilsBr } from 'js-brasil';
+import { ImageCroppedEvent, ImageTransform, Dimensions } from 'ngx-image-cropper';
+import { CurrencyUtils } from 'src/app/utils/currency-utils';
 
 @Component({
   selector: 'app-novo',
@@ -15,6 +17,17 @@ import { utilsBr } from 'js-brasil';
 export class NovoComponent implements OnInit {
 
   @ViewChildren(FormControlName, { read: ElementRef }) formInputElements: ElementRef[];
+
+  imageChangedEvent: any = '';
+  croppedImage: any = '';
+  canvasRotation = 0;
+  rotation = 0;
+  scale = 1;
+  showCropper = false;
+  containWithinAspectRatio = false;
+  transform: ImageTransform = {};
+  imageURL: string;
+  imagemNome: string;
 
   produto: Produto;
   fornecedores: Fornecedor[];
@@ -89,7 +102,11 @@ export class NovoComponent implements OnInit {
   adicionarProduto() {
     if (this.produtoForm.dirty && this.produtoForm.valid) {
       this.produto = Object.assign({}, this.produto, this.produtoForm.value);
-      this.formResult = JSON.stringify(this.produto);
+
+      this.produto.imagemUpload = this.croppedImage.split(',')[1];
+      this.produto.imagem = this.imagemNome;
+
+      this.produto.valor = CurrencyUtils.StringParaDecimal(this.produto.valor);
 
       this.produtoService.novoProduto(this.produto)
         .subscribe(
@@ -116,5 +133,26 @@ export class NovoComponent implements OnInit {
   processarFalha(fail: any) {
     this.errors = fail.error.errors;
     this.toastr.error('Ocorreu um erro!', 'Opa :(');
+  }
+
+  fileChangeEvent(event: any): void {
+    this.imageChangedEvent = event;
+    this.imagemNome = event.currentTarget.files[0].name;
+  }
+
+  imageCropped(event: ImageCroppedEvent) {
+    this.croppedImage = event.base64;
+  }
+
+  imageLoaded() {
+    this.showCropper = true;
+  }
+
+  cropperReady(sourceImageDimensions: Dimensions) {
+    console.log('Cropper ready', sourceImageDimensions);
+  }
+
+  loadImageFailed() {
+    this.errors.push('O formato do arquivo ' + this.imagemNome + ' não é aceito.');
   }
 }

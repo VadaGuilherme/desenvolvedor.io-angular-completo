@@ -5,7 +5,7 @@ import { Usuario } from '../models/usuario';
 import { ContaService } from '../services/conta.service';
 import { CustomValidators } from 'ngx-custom-validators';
 import { fromEvent, merge, Observable } from 'rxjs';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -24,11 +24,14 @@ export class LoginComponent implements OnInit, AfterViewInit {
   genericValidator: GenericValidator;
   displayMessage: DisplayMessage = {};
 
+  returnUrl: string;
+
   constructor(
     private formBuilder: FormBuilder,
     private contaService: ContaService,
     private router: Router,
-    private toastr: ToastrService) {
+    private toastr: ToastrService,
+    private route: ActivatedRoute) {
 
     this.validationMessages = {
       email: {
@@ -41,6 +44,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
       }
     };
 
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'];
     this.genericValidator = new GenericValidator(this.validationMessages);
   }
 
@@ -79,7 +83,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
     let toast = this.toastr.success('Login realizado com sucesso', 'Bem vindo!');
     if (toast) {
       toast.onHidden.subscribe(() => {
-        this.router.navigate(['/home']);
+        this.returnUrl
+          ? this.router.navigate([this.returnUrl])
+          : this.router.navigate(['/home']);
       });
     }
   }

@@ -8,6 +8,7 @@ import { ProdutoService } from '../services/produto.service';
 import { utilsBr } from 'js-brasil';
 import { fromEvent, merge, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { CurrencyUtils } from 'src/app/utils/currency-utils';
 
 @Component({
   selector: 'app-editar',
@@ -18,6 +19,11 @@ export class EditarComponent implements OnInit {
   imagens: string = environment.imagensUrl;
 
   @ViewChildren(FormControlName, { read: ElementRef }) formInputElements: ElementRef[];
+
+  imageBase64: any;
+  imagemPreview: any;
+  imagemNome: string;
+  imagemOriginalSrc: string;
 
   produto: Produto;
   fornecedores: Fornecedor[];
@@ -86,8 +92,10 @@ export class EditarComponent implements OnInit {
       nome: this.produto.nome,
       descricao: this.produto.descricao,
       ativo: this.produto.ativo,
-      valor: this.produto.valor
+      valor: CurrencyUtils.DecimalParaString(this.produto.valor)
     });
+
+    this.imagemOriginalSrc = this.imagens + this.produto.imagem;
   }
 
   ngAfterViewInit(): void {
@@ -103,6 +111,13 @@ export class EditarComponent implements OnInit {
   editarProduto() {
     if (this.produtoForm.dirty && this.produtoForm.valid) {
       this.produto = Object.assign({}, this.produto, this.produtoForm.value);
+
+      if (this.imageBase64) {
+        this.produto.imagemUpload = this.imageBase64;
+        this.produto.imagem = this.imagemNome;
+      }
+
+      this.produto.valor = CurrencyUtils.StringParaDecimal(this.produto.valor);
 
       this.produtoService.atualizarProduto(this.produto)
         .subscribe(
@@ -129,5 +144,19 @@ export class EditarComponent implements OnInit {
   processarFalha(fail: any) {
     this.errors = fail.error.errors;
     this.toastr.error('Ocorreu um erro!', 'Opa :(');
+  }
+
+  upload(file: any) {
+    this.imagemNome = file[0].name;
+
+    var reader = new FileReader();
+    reader.onload = this.manipularReader.bind(this);
+    reader.readAsBinaryString(file[0]);
+  }
+
+  manipularReader(readerEvt: any) {
+    var binaryString = readerEvt.target.result;
+    this.imageBase64 = btoa(binaryString);
+    this.imagemPreview = "data:image/jpeg;base64," + this.imageBase64;
   }
 }

@@ -14,6 +14,7 @@ import { TextMaskModule } from "angular2-text-mask";
 import { FornecedorResolve } from "./services/fornecedor.resolve";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { FornecedorGuard } from "./services/fornecedor.guard";
+import { ListaProdutosComponent } from "./produtos/lista-produtos.component";
 
 @NgModule({
     declarations: [
@@ -22,7 +23,8 @@ import { FornecedorGuard } from "./services/fornecedor.guard";
         EditarComponent,
         ExcluirComponent,
         NovoComponent,
-        ListaComponent
+        ListaComponent,
+        ListaProdutosComponent
     ],
     imports: [
         CommonModule,

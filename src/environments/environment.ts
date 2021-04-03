@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  apiUrlv1: 'https://localhost:5001/api/v1/',
-  imagensUrl: 'https://localhost:5001/'
+  apiUrlv1: 'http://infosystembrasil.ddns.net:5020/back-end/api/v1/',
+  imagensUrl: 'http://infosystembrasil.ddns.net:5020/back-end/'
 };
 
 /*
